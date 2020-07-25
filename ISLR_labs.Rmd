@@ -1,0 +1,706 @@
+---
+title: "ISLR Labs"
+# output: pdf_document
+---
+<!-- title: "R for Data Science" -->
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+# output: html_document
+---
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction to Statistical Learning with applications in R
+
+This document follows the labs and exercises of the ISLR textbook.
+
+
+## Chapter 3: Linear Regression
+
+Load the required pacakges.
+
+`MASS` is a large collection of data sets and functions.
+`ISLR` is associated with the book.
+
+```{r, message=FALSE, warning=FALSE}
+library(MASS)
+library(ISLR)
+```
+
+### 3.6.2 Simple Linear Regression
+
+`Boston` dataset in the `MASS` library has records for median house value (`medv`) for 506 neighborhoods around Boston.
+
+Goal: predict `medv` using 13 predictors, including
+
+* `rm` = average number of rooms per house
+* `age` = average age of houses
+* `lstat` = percent of households with low socioeconomic status
+
+```{r, results="markup"}
+# view the datset
+# fix(Boston)
+names(Boston)
+
+# get more info
+?Boston
+```
+
+Fit a simple linear regression model.
+
+```{r}
+# prints very basic info
+(lm.fit = lm(medv ~ lstat, data = Boston))
+
+# more detailed info with pvals
+summary(lm.fit)
+```
+
+Extract coefficient info
+
+```{r}
+# names of different information for the model
+names(lm.fit)
+
+# use the extractor functions available
+coef(lm.fit)
+```
+
+Get the confidence intervals for the fit
+```{r}
+confint(lm.fit)
+```
+
+Use the `predict()` function to get confidence intervals for the prediction of `medv` for given `lstat` values.
+```{r}
+predict(lm.fit, data.frame(lstat=c(5,10,15)),
+        interval="confidence")
+```
+
+These are prediction intervals.
+```{r}
+predict(lm.fit, data.frame(lstat=c(5,10,15)),
+        interval="prediction")
+```
+
+Plot the `medv` and `lstat` variables.
+```{r}
+# attach the dataframe to make thing easier
+attach(Boston)
+
+# plot the variables
+plot(lstat, medv)
+# add the least square regression line
+abline(lm.fit)
+```
+
+We can change options for the plot.
+
+Change the width of the regression line with `lwd`
+```{r}
+plot(lstat, medv)
+abline(lm.fit, lwd=3)
+```
+
+Change the color of the abline
+```{r}
+plot(lstat, medv)
+abline(lm.fit, lwd=3, col='red')
+```
+
+Change the color of the plotted points.
+```{r}
+plot(lstat, medv, col='blue')
+abline(lm.fit, lwd=3, col='red')
+```
+
+Change the type of points.
+```{r}
+plot(lstat, medv, col='blue', pch="+")
+abline(lm.fit, lwd=3, col='red')
+```
+
+Check out all of the different types of points available. `cex` adjusts point size.
+```{r}
+n <- 25
+plot(1:n, 1:n, pch=1:n, cex=2)
+```
+
+Check out diagnostic plots from the linear model. 
+```{r}
+# create a 2x2 figure to display all diagnostic plots at once
+par(mfrow = c(2,2))
+plot(lm.fit)
+```
+
+We can also compute the residuals from a linear model using the `residuals` function. The `rstudent` will return thre studentized residuals. We can plot these values against the fitted values.
+
+```{r}
+# residuals
+plot(predict(lm.fit), residuals(lm.fit))
+```
+```{r}
+# studentized residuals
+plot(predict(lm.fit), rstudent(lm.fit))
+```
+
+It looks like there is non-linearity based on these residual plots.
+
+We can compute leverage statistics for any number of predictors using `hatvalues()`.
+```{r}
+plot(hatvalues(lm.fit))
+```
+
+Use `which.max` to find the index of the largest element of a vector. Use this with `hatvalues` to find the observation with the largest leverage statistic.
+```{r}
+which.max(hatvalues(lm.fit))
+```
+
+### 3.6.3 Multiple Linear Regression
+
+Let's fit a multiple linear regression model using the `lm` function.
+```{r}
+# fit the model
+lm.fit = lm(medv ~ lstat + age, data = Boston)
+
+# get a summary
+summary(lm.fit)
+```
+
+To fit a model with all of the variables in a dataframe as predictors, use this short-hand:
+```{r}
+# fit the model with all predictors
+lm.fit <- lm(medv ~ ., data = Boston)
+
+summary(lm.fit)
+```
+
+We can access individual parts of the summary as such,
+```{r}
+# get the R-square
+summary(lm.fit)$r.sq
+```
+
+We can compute the variance inflation factors using the `vif()` function of the `car` package.
+```{r, message=FALSE, warning=FALSE}
+library(car)
+
+vif(lm.fit)
+```
+
+The VIF can be used to assess multi-collinearity. If the VIF exceeds 5 or 10, this indicates a problematic amount of collinearity among the predictors. We can remove any factors that are larger than some threshold or combine collinear variables together into a single predictor. 
+
+
+We can choose to indclue all variables except for one. Let's exclude tax from our model since it's VIF was so large.
+```{r}
+lm.fit1 <- lm(medv ~ .-tax, data = Boston)
+
+summary(lm.fit1)
+```
+
+We can also use the update function.
+```{r}
+lm.fit1 <- update(lm.fit, ~.-tax)
+
+summary(lm.fit1)
+```
+
+
+### 3.6.4 Interaction Terms
+
+We can use the following syntax to add an interaction term between `lstat` and `age`.
+```{r}
+summary(lm(medv ~ lstat:age, data = Boston))
+```
+
+However, we should include the variables themselves in this model. We can do so with the following shorthand.
+```{r}
+summary(lm(medv ~ lstat*age, data = Boston))
+```
+
+Now we have `lstat`, `age`, and the interaction term `lstat:age`.
+
+
+### 3.6.5 Non-linear Transformations of the Predictors
+
+We can perform non-linear transformations of the predictors using the `I()` function.
+```{r}
+lm.fit2 <- lm(medv ~ lstat + I(lstat^2))
+summary(lm.fit2)
+```
+
+We can use the `anova()` function to investigate the significant quadratic term further.
+```{r}
+lm.fit <- lm(medv ~ lstat)
+anova(lm.fit, lm.fit2)
+```
+
+We've comepare two models: one with the quadratic term for `lstat` and one without. The anova test performs a hypothesis test comparing the two models. The null hypothesis is that the two models fit the data equally well. The alternate hypothesis is that the full model is superior. The F statistic of 135 tells us the the quadratic functions fits the data much better.
+
+```{r}
+par(mfrow = c(2,2))
+plot(lm.fit2)
+```
+
+For higher order polynomials, we can use the `poly` function. The following fits a fifth-order polynomial.
+```{r}
+lm.fit5 <- lm(medv ~ poly(lstat, 5))
+summary(lm.fit5)
+```
+
+We can use other types of transformations as well.
+```{r}
+summary(lm(medv ~ log(rm), data = Boston))
+```
+
+### 3.6.6 Qualitative Predictors
+
+We'll use the `Carseats` data from the `ISLR` library now.
+```{r}
+names(Carseats)
+```
+
+Fit a linear model with qualitative variables such as `Shelveloc`, which is the shelf location a car seat is displayed in a store.
+```{r}
+table(Carseats$ShelveLoc)
+```
+
+```{r}
+lm.fit <- lm(Sales ~. + Income:Advertising + Price:Age, data=Carseats)
+summary(lm.fit)
+```
+
+Notice how `R` has created dummy variables for the `ShelveLoc` variable.
+
+We can use the `contrasts()` function to look at the coding that `R` uses for the dummy variables.
+```{r}
+attach(Carseats)
+contrasts(ShelveLoc)
+```
+
+?contrasts
+
+
+## Chapter 4 Lab: Logistic Regression, LDA, QDA, and KNN
+
+### 4.6.1 The Stock Market
+
+We will look at the *Smarket* dataset which is part of the *ISLR* library. This dataset consists of percentage returns for the S&P 500 stick index over 1,250 days, from the beginning of 2001 until the end of 2005. For each date, the percentage returns for each of the five previous trading days, *Lag1* through *Lag5*. The *Volume* indicates the number of shared traded on the previous days, in billions. *Today* is the percentage return on the date in question. *Direction* indicates whether the market was *Up* or *Down* on this date.
+
+```{r, message=FALSE, warning=FALSE}
+library(ISLR)
+names(Smarket)
+
+dim(Smarket)
+
+summary(Smarket)
+```
+
+```{r}
+pairs(Smarket)
+```
+
+The *cor()* function gives us a mtrix with the pairwise correlations among all the predictors in a data set. We cannot have any non-numeric variables or else we'll get an error.
+```{r}
+cor(Smarket[,-9])
+```
+
+Unsurprisingly, there's little correlation between today's returns and those of the preceding days. Only *Volume* and *Year* have any substantial correlation. Let's plot this data to see that *Volume* increases over time.
+
+```{r}
+attach(Smarket)
+plot(Volume)
+```
+
+### 4.6.2 Logistic Regression
+
+Next, we want to fit a logistic regression model to predict *Direction* using *Lag1* through *Lag5* and *Volume*. We'll use the *glm()* function to fit a generalized linear model using the binomial family.
+
+```{r}
+glm.fits <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume,
+                data = Smarket,
+                family = binomial)
+summary(glm.fits)
+```
+
+The smallest p-value is associated with *Lag1*. 
+
+The *coef()* function allows us to access just the coefficients for this fitted model.
+```{r}
+coef(glm.fits)
+```
+
+The *summary* function allows us to access particular aspects of the fitted model.
+```{r}
+summary(glm.fits)$coef
+```
+```{r}
+# view p-values only
+summary(glm.fits)$coef[,4]
+```
+
+The *predict()* functions allows us to predict the probability that the market will go up given the predictors. Using the *type="response"* options gives us the probabilities of the form $P(Y = 1 | X)$, as opposed to other information such as the logit.
+
+If not data set is supplied, the *predict()* function will compute probabilities for the training data that was used to fit the logistic regression model.
+
+```{r}
+glm.probs <- predict(glm.fits, type="response")
+glm.probs[1:10]
+```
+
+We can use the *contrasts()* function to see that the model is predicting the probability of the morket going up rather than down.
+```{r}
+contrasts(Direction)
+```
+
+To make predictions, we convert these probabilities into class labels. We need to set a threshold to define the two classes. Typically 0.5 is the chosen threshold.
+```{r}
+# create vector initialized with the "Down" class
+glm.pred <- rep("Down", length(Direction))
+
+# update the "Up" predictions based on our threshold probability
+glm.pred[glm.probs > 0.5] <- "Up"
+```
+
+Now we can evaluate the predictions by creating a confusion matrix with the true labels.
+```{r}
+table(glm.pred, Direction)
+```
+
+The diagonal elements are the correct predictions, and the off-diagonal are incorrect predictions. We can compute the accuracy of our model using this matrix.
+```{r}
+# compute manually
+(507+145)/1250
+
+# automatically compute using the mean function
+mean(glm.pred == Direction)
+```
+
+These return the same value.
+
+This model may seem to be predictive slightly better than chance, but we haven't accounted for overfitting. We use the same set for training and for predictions, so we are only reporting the *training* accuracy here. We actually want to test on a held-out set of data. We'll do that by creating a vector corresponding to identify our training and test set. We'll use a time-split for split our data so that training data will be from 2001 to 2004, and test data will be from 2005.
+
+```{r}
+# identify training data
+train <- (Year < 2005)
+
+# get data for test set
+Smarket.2005 <- Smarket[!train,]
+# check how many observations are in test
+dim(Smarket.2005)
+
+# get the test labels
+Direction.2005 <- Direction[!train]
+```
+
+Now we can fit our model using these split sets.
+```{r}
+glm.fits <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume,
+                data = Smarket, family = binomial, subset = train)
+glm.probs <- predict(glm.fits, Smarket.2005, type = "response")
+```
+
+Now we've trained on the train set and tested on the test set. We'll compute the predicted labels and view the results now.
+```{r}
+glm.pred <- rep("Down", length(glm.probs))
+glm.pred[glm.probs > 0.5] = "Up"
+table(glm.pred, Direction.2005)
+
+mean(glm.pred == Direction.2005)
+mean(glm.pred != Direction.2005)
+```
+
+Now we see that would accuracy has gone down, thus our error rate has increased. 
+
+
+### 4.6.3 Linear Discriminant Analysis
+
+Now we will perform LDA on the `Smarket` data using the `lda()` function from the `MASS` library. We'll fit the model using observations prior to 2005.
+```{r, warning=FALSE, message=FALSE}
+library(MASS)
+
+lda.fit <- lda(Direction ~ Lag1 + Lag2, data = Smarket, subset = train)
+lda.fit
+```
+
+We can look at the LDA output to find our prior values, indicating that 49% of the observations correspond to days when the market went down, and 50% corresponds to days when the market went up. 
+
+We also see the group means which are the average of each predictor. These suggest that there is a tendency for the previous 2 days' returns to be negative on days when the market increases, and a tendency for the previous 2 days' returns to be positive when the market declines.
+
+The *coefficients of linear discriminants* provides the linear combination of `Lag1` and `Lag2` that are used to form the LDA decision rule. If $-0.64 \times$ `Lag1` $- 0.51 \times$ `Lag2` is large, then the LDA classifier will predict an increase in the market, and if it is small, it will predict a decrease.
+
+```{r}
+plot(lda.fit)
+```
+
+The `plot()` function plots the *linear discriminants* for each of the observations using the fomula with the coefficients of linear discriminants above.
+
+```{r}
+lda.pred <- predict(lda.fit, Smarket.2005)
+names(lda.pred)
+```
+
+The `predict()` functions returns a list with three elements. 
+* `class` contains LDA's predictions about the movement of the market.
+```{r}
+head(lda.pred$class)
+```
+
+
+* `posterior` is a matrix whose $k$th column contains the posterior probability that the corresponding observation belongs to the $k$th class.
+```{r}
+head(lda.pred$posterior)
+```
+
+
+* $x$ contains the linear discriminants
+```{r}
+head(lda.pred$x)
+```
+
+We can see that the predictions from LDA are almost identical to those from the logistic regression predcitions we made.
+```{r}
+lda.class <- lda.pred$class
+table(lda.class, Direction.2005)
+
+mean(lda.class == Direction.2005)
+```
+
+Applying a 50% threshold to the posterior probabilities allows us to recreate the predictions contained in `lda.pred$class`.
+```{r}
+# total amount of observation predicted as Down (35+35)
+sum(lda.pred$posterior[,1] >= 0.5)
+# total amounts of observations predicted as Up (76+106)
+sum(lda.pred$posterior[,1] < 0.5)
+```
+
+Notice that the posterior probability output by the model corresponds to the probability that the market will *decrease*
+```{r}
+# check out the posterior probabilities
+lda.pred$posterior[1:20,1]
+
+# match them with the class predictions
+manual.class <- ifelse(lda.pred$posterior[1:20,1] > 0.5, "Down", "Up")
+lda.class[1:20]
+# bind them together as columns
+cbind(manual.class, as.character(lda.class[1:20]))
+```
+
+We can easily change this threshold to make different predictions. Suppose we only want to make a prediction that the market will decrease only if we are very certain. We can change our posterior probability threshold to 90%.
+```{r}
+sum(lda.pred$posterior[,1] > 0.9)
+```
+
+There are zero days in 2005 that meet this threshold. In fact, the greatest probability in 2005 was 52.02%.
+
+
+### 4.6.4 Quadratic Discriminant Analysis
+
+Now we'll use QDA to model the `Smarket` dataset. We use the `qda()` function which is part of the `MASS` library.
+
+```{r}
+qda.fit <- qda(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
+qda.fit
+```
+
+We get the group means from QDA, but we do not get any coefficients because QDA involves quadratic, rather than a linear, function of the predictors.
+
+We can use the `predict()` function as usual.
+```{r}
+qda.class = predict(qda.fit, Smarket.2005)$class
+# view the contingency table
+table(qda.class, Direction.2005)
+# view the accuracy
+mean(qda.class == Direction.2005)
+```
+
+This performance of 60% accuracy on the test set is quite good for predicting the stock market. This improvement in performance suggests that the quadratic form assumed by QDA models the stock market better than the linear forms assumed by LDA and logistic regression.
+
+
+### 4.6.5 K-Nearest Neighbors
+
+Now we'll perform KNN using the `knn()` function, which is part of the `class` library. This function is different from the other methods. Rather than training the model and then making predictions in two steps, the KNN function makes predictions in a single command. The function requires four inputs.
+
+1) A matrix containing the predictors associated with the training data, labeled `train.X` below.
+2) A matrix containing the predictors associated with the data for which we'll make predictions, labeled `test.X` below.
+3) A vector containing the class labels for the training observations, labeled `train.Direction` below.
+4) A value for $K$, the number of nearest neighbors to use.
+
+```{r, message=FALSE, warning=FALSE}
+library(class)
+# bind the Lag1 and Lag2 columns together
+train.X <- cbind(Lag1, Lag2)[train,]
+test.X <- cbind(Lag1, Lag2)[!train,]
+train.Direction <- Direction[train]
+```
+
+Now that we've set up the data, we can use the `knn()` function to predict the market's movement for dates in 2005. We set a random seed because if several observations are tied as nearest neighbors, then R will randomly break the tie.
+```{r}
+set.seed(7)
+knn.pred <- knn(train.X, test.X, train.Direction, k=1)
+# contingency table
+table(knn.pred, Direction.2005)
+# accuracy
+mean(knn.pred == Direction.2005)
+```
+
+The results aren't that good since the accuracy is 50% - the same as chance. The $K=1$ setting is probably too flexible and overfitting the training data. We'll try again with an increased $K$.
+```{r}
+knn.pred <- knn(train.X, test.X, train.Direction, k=3)
+table(knn.pred, Direction.2005)
+mean(knn.pred == Direction.2005)
+```
+
+We've improved slightly, but it still seems like QDA provides the best results for this problem.
+
+
+### 4.6.6 Application to Caravan Insurance Data
+
+We'll look at an application of KNN to the `Caravan` dataset, which is part of the `ISLR` library. This dataset includes 85 predictors that measure demographic characteristics for 5,822 individuals. The repsponse variable is `Purchase`, which indicates whether an individual purchases caravan insurance. Only 6% of people in this dataset purchased caravan insurance.
+```{r}
+dim(Caravan)
+attach(Caravan)
+summary(Purchase)
+348/5822
+```
+
+Since KNN predicts the class given the closest data point, the scale of the variables matter. Variables on a large scale will have a much larger impace on the distance between observations than those on a small scale. For instance, given a dataset containing variables `salary` and `age`, a difference in salary of \$1000 will impact distance in KNN much more than a difference of 50 years in age. Salary will end up driving the predictions and age will have very little impact on any of the predictions. This is contrary to our knowledge that a difference in salary of \$1000 is not much, while a 50 year age gap is quite large. Furthermore, if we measured salary in Japense yen, or age in minutes, then we'd get vastly different results. 
+
+We handle this problem by standardizing the data so that all variables are given a mean of zero and a standard deviation of one. Then all variables will be on a comparable scale. The `scale()` function does this. In standardizing the data, we exclude the qualitative variables.
+
+```{r}
+# standardize variables, except the qualitative ones
+standardized.X <- scale(Caravan[,-86])
+var(Caravan[,1])
+var(Caravan[,2])
+var(standardized.X[,1])
+var(standardized.X[,2])
+```
+
+Now we see that every column of `standardized.X` has the same standard deviation of one and a mean of zero.
+
+We can now split the observations in the a test set containing the first 1,000 observations, and a training set, containing the remaining observations. We fit a KNN model on the training data using $K=1$, and evaluate its performance on the test data.
+```{r}
+# select first 1000 as test set, split up test and train
+test <- 1:1000
+train.X <- standardized.X[-test,]
+test.X <- standardized.X[test,]
+train.Y <- Purchase[-test]
+test.Y <- Purchase[test]
+# run knn
+set.seed(1)
+knn.pred <- knn(train.X, test.X, train.Y, k=1)
+# measure error rate
+mean(test.Y != knn.pred)
+# how many no's are we predicting?
+mean(test.Y != "No")
+```
+
+The error rate of about 12% seems good, but we have a major class imbalance here. If we only predict "No", then we'd have an error rate of 6%. 
+
+Suppose a cost was involved with trying to sell insurance to each potential customer. We'd want to know who is likely to buy insurance rather than approching a random selection of people. KNN does fairly well here.
+```{r}
+table(knn.pred, test.Y)
+9/(68+9)
+```
+
+KNN doubles the rate at which people would say purchase over the random approach.
+
+We can increase $K$ and get even better performance.
+```{r}
+# run knn
+knn.pred <- knn(train.X, test.X, train.Y, k=3)
+# confusion matrix
+table(knn.pred, test.Y)
+5/26
+```
+
+Now we increase our sales proportion to 19%!
+
+The performance with $k=5$ is even better!
+```{r}
+knn.pred <- knn(train.X, test.X, train.Y, k=5)
+table(knn.pred, test.Y)
+4/15
+```
+
+We can compare this to a logistic regression model.
+```{r}
+# fit the logistic regression model
+glm.fits <- glm(Purchase ~ ., data=Caravan, family=binomial, subset=-test)
+
+# make predictions
+glm.probs <- predict(glm.fits, Caravan[test,], type="response")
+glm.pred <- rep("No", 1000)
+glm.pred[glm.probs > 0.5] = "Yes"
+table(glm.pred, test.Y)
+```
+
+Choosing the cutoff at 0.5 gives us pretty terrible results. There are only 7 people predicted as "Yes" and they are all false positives. However, there's no reason that we need to select this threshold.
+
+```{r}
+glm.pred <- rep("No", 1000)
+glm.pred[glm.probs > 0.25] = "Yes"
+table(glm.pred, test.Y)
+11/33
+```
+
+Now we've got a 33% probability of purchase! This is over five times better than random guessing!
+
+
+# 5.3 Cross-Validation and the Bootstrap
+
+# 5.3.1 The Validation Set Approach
+
+We'll explore the validation set approach using the `Auto` dataset. We use the `set.seed()` function to set a seed for R's random number generator. In general, we should set a seed before using any approach with randomness so we can reproduce the results precisely at a later time.
+```{r}
+library(ISLR)
+set.seed(1)
+train <- sample(392,196)
+```
+
+We use the sample command to select a random subset of 196 observations out of the original 392 observations. These will be the training set.
+
+Now we can use the `subset` option in `lm()` with this training set.
+```{r}
+lm.fit <- lm(mpg ~ horsepower, data=Auto, subset=train)
+```
+
+Now we'll use the predict function to estimate the response for all 392 observations.
+```{r}
+attach(Auto)
+mean((mpg - predict(lm.fit, Auto))[-train]^2)
+```
+
+This gives us the estimated test MSE for the linear regression fit of 26.14. We can use the `poly()` function to estimate the test error for the quadratic and cubic regressions.
+```{r}
+# quadratic regression
+lm.fit2 <- lm(mpg ~ poly(horsepower,2), data=Auto, subset=train)
+mean((mpg - predict(lm.fit2, Auto))[-train]^2)
+# cubic regression
+lm.fit3 <- lm(mpg ~ poly(horsepower,3), data=Auto, subset=train)
+mean((mpg - predict(lm.fit3, Auto))[-train]^2)
+```
+
+We get error rates of 19.92 amd 19.78. We'll get slightly different error rates if we choose a different training set.
+```{r}
+set.seed(2)
+train <- sample(392,196)
+lm.fit <- lm(mpg ~ horsepower, subset=train)
+mean((mpg - predict(lm.fit, Auto))[-train]^2)
+# quadratic regression
+lm.fit2 <- lm(mpg ~ poly(horsepower,2), data=Auto, subset=train)
+mean((mpg - predict(lm.fit2, Auto))[-train]^2)
+# cubic regression
+lm.fit3 <- lm(mpg ~ poly(horsepower,3), data=Auto, subset=train)
+mean((mpg - predict(lm.fit3, Auto))[-train]^2)
+```
+
+We get slightly different error rates now. These results are consistent with what we found earlier, a quadratic model performs better than a linear model, and there is no evidence that a cubic model is necessary.
+
