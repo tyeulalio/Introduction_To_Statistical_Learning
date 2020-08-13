@@ -1,5 +1,9 @@
 ---
 title: "ISLR Labs"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
@@ -11,6 +15,7 @@ knit: (function(input_file, encoding) {
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<a id="top"></a>
 # Introduction to Statistical Learning with applications in R
 
 This document follows the labs and exercises of the ISLR textbook.
@@ -29,6 +34,7 @@ library(ISLR)
 ```
 
 ### 3.6.2 Simple Linear Regression
+[Back to Top](#top)
 
 `Boston` dataset in the `MASS` library has records for median house value (`medv`) for 506 neighborhoods around Boston.
 
@@ -158,6 +164,7 @@ which.max(hatvalues(lm.fit))
 ```
 
 ### 3.6.3 Multiple Linear Regression
+[Back to Top](#top)
 
 Let's fit a multiple linear regression model using the `lm` function.
 ```{r}
@@ -208,6 +215,7 @@ summary(lm.fit1)
 
 
 ### 3.6.4 Interaction Terms
+[Back to Top](#top)
 
 We can use the following syntax to add an interaction term between `lstat` and `age`.
 ```{r}
@@ -223,6 +231,7 @@ Now we have `lstat`, `age`, and the interaction term `lstat:age`.
 
 
 ### 3.6.5 Non-linear Transformations of the Predictors
+[Back to Top](#top)
 
 We can perform non-linear transformations of the predictors using the `I()` function.
 ```{r}
@@ -255,6 +264,7 @@ summary(lm(medv ~ log(rm), data = Boston))
 ```
 
 ### 3.6.6 Qualitative Predictors
+[Back to Top](#top)
 
 We'll use the `Carseats` data from the `ISLR` library now.
 ```{r}
@@ -285,6 +295,7 @@ contrasts(ShelveLoc)
 ## Chapter 4 Lab: Logistic Regression, LDA, QDA, and KNN
 
 ### 4.6.1 The Stock Market
+[Back to Top](#top)
 
 We will look at the *Smarket* dataset which is part of the *ISLR* library. This dataset consists of percentage returns for the S&P 500 stick index over 1,250 days, from the beginning of 2001 until the end of 2005. For each date, the percentage returns for each of the five previous trading days, *Lag1* through *Lag5*. The *Volume* indicates the number of shared traded on the previous days, in billions. *Today* is the percentage return on the date in question. *Direction* indicates whether the market was *Up* or *Down* on this date.
 
@@ -314,6 +325,7 @@ plot(Volume)
 ```
 
 ### 4.6.2 Logistic Regression
+[Back to Top](#top)
 
 Next, we want to fit a logistic regression model to predict *Direction* using *Lag1* through *Lag5* and *Volume*. We'll use the *glm()* function to fit a generalized linear model using the binomial family.
 
@@ -415,6 +427,7 @@ Now we see that would accuracy has gone down, thus our error rate has increased.
 
 
 ### 4.6.3 Linear Discriminant Analysis
+[Back to Top](#top)
 
 Now we will perform LDA on the `Smarket` data using the `lda()` function from the `MASS` library. We'll fit the model using observations prior to 2005.
 ```{r, warning=FALSE, message=FALSE}
@@ -496,6 +509,7 @@ There are zero days in 2005 that meet this threshold. In fact, the greatest prob
 
 
 ### 4.6.4 Quadratic Discriminant Analysis
+[Back to Top](#top)
 
 Now we'll use QDA to model the `Smarket` dataset. We use the `qda()` function which is part of the `MASS` library.
 
@@ -519,6 +533,7 @@ This performance of 60% accuracy on the test set is quite good for predicting th
 
 
 ### 4.6.5 K-Nearest Neighbors
+[Back to Top](#top)
 
 Now we'll perform KNN using the `knn()` function, which is part of the `class` library. This function is different from the other methods. Rather than training the model and then making predictions in two steps, the KNN function makes predictions in a single command. The function requires four inputs.
 
@@ -556,6 +571,7 @@ We've improved slightly, but it still seems like QDA provides the best results f
 
 
 ### 4.6.6 Application to Caravan Insurance Data
+[Back to Top](#top)
 
 We'll look at an application of KNN to the `Caravan` dataset, which is part of the `ISLR` library. This dataset includes 85 predictors that measure demographic characteristics for 5,822 individuals. The repsponse variable is `Purchase`, which indicates whether an individual purchases caravan insurance. Only 6% of people in this dataset purchased caravan insurance.
 ```{r}
@@ -649,9 +665,10 @@ table(glm.pred, test.Y)
 Now we've got a 33% probability of purchase! This is over five times better than random guessing!
 
 
-# 5.3 Cross-Validation and the Bootstrap
+## 5.3 Cross-Validation and the Bootstrap
 
-# 5.3.1 The Validation Set Approach
+### 5.3.1 The Validation Set Approach
+[Back to Top](#top)
 
 We'll explore the validation set approach using the `Auto` dataset. We use the `set.seed()` function to set a seed for R's random number generator. In general, we should set a seed before using any approach with randomness so we can reproduce the results precisely at a later time.
 ```{r}
@@ -698,4 +715,143 @@ mean((mpg - predict(lm.fit3, Auto))[-train]^2)
 ```
 
 We get slightly different error rates now. These results are consistent with what we found earlier, a quadratic model performs better than a linear model, and there is no evidence that a cubic model is necessary.
+
+
+### 5.3.2 Leave-One-Out Cross-Validation
+[Back to Top](#top)
+
+We can automatically perform LOOCV using the `glm()` and `cv.glm()` functions. If we do not pass anything to the `family` argument of `glm()`, we can perform linear regression.
+```{r}
+glm.fit <- glm(mpg ~ horsepower, data=Auto)
+coef(glm.fit)
+
+lm.fit <- lm(mpg ~ horsepower, data=Auto)
+coef(lm.fit)
+```
+
+The output for the fitted models are exactly the same. We'll use the `glm()` function to perform linear regression so that we can make use of the cross validation.
+```{r}
+require(boot)
+
+# fit the model
+glm.fit <- glm(mpg~horsepower, data=Auto)
+
+# perform cross validation
+cv.err <- cv.glm(Auto, glm.fit)
+
+# cross validation results
+cv.err$delta
+```
+
+Our cross validation estimate for the test error is approximately 24.23. We discuss later when these two numbers from *delta* will differ.
+
+We can repeat this procedure for increasingly complex fits.
+```{r}
+cv.error <- rep(0,5)
+for (i in 1:5){
+  glm.fit <- glm(mpg ~ poly(horsepower, i), data=Auto)
+  cv.error[i] <- cv.glm(Auto, glm.fit)$delta[1]
+}
+cv.error
+```
+
+We see the MSE drops drastically from the linear model to the quadratic, but then no clear improvement using higer-order polynomials.
+
+
+
+### 5.3.3 $k$-Fold Cross-Validation
+[Back to Top](#top)
+
+We'll use the `cv.glm()` function to implement $k$-fold CV on the `Auto` dataset. We'll run cross validation for polynomials of degree 1 through 10.
+```{r}
+set.seed(17)
+
+# initialize error vector
+k <- 10
+cv.error <- rep(0,10)
+
+# run 10-fold cross validation
+for (i in 1:10){
+  glm.fit <- glm(mpg ~ poly(horsepower, i), data=Auto)
+  cv.error[i] <- cv.glm(Auto, glm.fit, K=k)$delta[1]
+}
+
+cv.error
+```
+
+Ten-fold cross-validation runs much more quickly than LOOCV. We see again from our results that there is no gain in performance when using polynomials of higher order than a quadratic fit.
+
+The `delta` output has two numbers. We look at the first which is the standard $k$-fold CV error, and the second is a bias-corrected version. Here, the values are quite similar.
+
+
+### 5.3.4 The Bootstrap
+[Back to Top](#top)
+
+#### Estimating the accuracy of a statistic of interest using the bootstrap
+
+The bootstrap can be applied in almost all situations. Performing a bootstrap analysis in R consists of two steps:
+
+1. Create a function that computes a statistic
+2. Use the `boot()` function (part of the `boot` library) to perform bootstrap by repeatedly sampling observations from the dataset with replacement
+
+To perform the bootstrap on the `Portfolio` data from the `ISLR` dataset, we'll create a function that computes an estimate fro $\alpha$.
+```{r}
+alpha.fn <- function(data, index){
+  X = data$X[index]
+  Y = data$Y[index]
+  return((var(Y) - cov(X,Y)) / (var(X) + var(Y) - 2*cov(X,Y)))
+}
+```
+
+This dataset was discussed in Section 5.2 of the ISLR book. We're basically interested in investing a fixed sum of money in two financial assets that yield returns of $X$ and $Y$, respectively, where both are random quantities. We invest a fraction $\alpha$ of our money in $X$ and $1-\alpha$ of our money in $Y$. Since there is variability associated with the returns on the two assets, we want to choose $\alpha$ to minimize this variability. It can be shown that we minimize risk by setting $\alpha$ to
+$$ \alpha = \frac{\sigma_Y^2 - \sigma_{XY}}{ \sigma_X^2 + \sigma_Y^2 - 2\sigma_{XY}} $$
+
+So then our function `alpha.fn` returns an estimate for $\alpha$ by applying the formula to the observation indexed by `index`. So the following command estimates $\alpha$ using all 100 observations.
+```{r}
+alpha.fn(Portfolio, 1:100)
+```
+
+Next we'll use the `sample()` command to randomly subset 100 observations from the range 1 to 100, with replacement. This is equivalent to contructing a new bootstrap dataset and recomputing $\alpha$.
+```{r}
+set.seed(1)
+alpha.fn(Portfolio, sample(100, 100, replace=T))
+```
+
+We can perform a bootstrap analysis by performing this task many times, recording the estimated $\alpha$ values, and computing the resulting standard deviation. However, the `boot()` function automates this.
+```{r}
+boot(Portfolio, alpha.fn, R=1000)
+```
+
+We're performed the bootstrap with R=1,000 bootstrap estimates for $\alpha$.
+
+We see that using the original data, $\hat{\alpha} = 0.5758$ and the bootstrap estimate for $SE(\hat{\alpha}) = 0.0886$.
+
+
+#### Estimating the Accuracy of a Linear Regressin Model
+
+We can use the bootstrap to estimate the variability of the estimated coefficients and predictions from a statistical learning model. We'll use the bootstrap to assess these in a linear regression model using the `Auto` dataset. We'll create a function called `boot.fn` to take the `Auto` dataset and returns the intercept and slope estimates for the linear regression model. 
+```{r}
+boot.fn <- function(data, index){
+  # return the coefficients of the linear model
+  return (coef(lm(mpg ~ horsepower, data=data, subset=index)))
+}
+```
+
+Now we'll use the `boot.fn` function to estimate $\beta_0$ and $\beta_1$ for all 392 observations in the dataset.
+```{r}
+# estimate coefficents for linear regression on the entire dataset
+boot.fn(Auto, 1:392)
+```
+
+Now we can use the `boot.fn` function to create bootstrap estimates for the intercept and slope by randomly sampling from the full dataset.
+```{r}
+set.seed(1)
+boot.fn(Auto, sample(392, 392, replace=T))
+```
+
+Now we can use the `boot()` function to comput the standard errors for the intercept and slope terms.
+```{r}
+boot(Auto, boot.fn, R=1000)
+```
+
 

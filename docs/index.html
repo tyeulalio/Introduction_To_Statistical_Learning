@@ -365,9 +365,36 @@ summary {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#chapter-3-linear-regression">Chapter 3: Linear Regression</a><ul>
+<li><a href="#simple-linear-regression">3.6.2 Simple Linear Regression</a></li>
+<li><a href="#multiple-linear-regression">3.6.3 Multiple Linear Regression</a></li>
+<li><a href="#interaction-terms">3.6.4 Interaction Terms</a></li>
+<li><a href="#non-linear-transformations-of-the-predictors">3.6.5 Non-linear Transformations of the Predictors</a></li>
+<li><a href="#qualitative-predictors">3.6.6 Qualitative Predictors</a></li>
+</ul></li>
+<li><a href="#chapter-4-lab-logistic-regression-lda-qda-and-knn">Chapter 4 Lab: Logistic Regression, LDA, QDA, and KNN</a><ul>
+<li><a href="#the-stock-market">4.6.1 The Stock Market</a></li>
+<li><a href="#logistic-regression">4.6.2 Logistic Regression</a></li>
+<li><a href="#linear-discriminant-analysis">4.6.3 Linear Discriminant Analysis</a></li>
+<li><a href="#quadratic-discriminant-analysis">4.6.4 Quadratic Discriminant Analysis</a></li>
+<li><a href="#k-nearest-neighbors">4.6.5 K-Nearest Neighbors</a></li>
+<li><a href="#application-to-caravan-insurance-data">4.6.6 Application to Caravan Insurance Data</a></li>
+</ul></li>
+<li><a href="#cross-validation-and-the-bootstrap">5.3 Cross-Validation and the Bootstrap</a><ul>
+<li><a href="#the-validation-set-approach">5.3.1 The Validation Set Approach</a></li>
+<li><a href="#leave-one-out-cross-validation">5.3.2 Leave-One-Out Cross-Validation</a></li>
+<li><a href="#k-fold-cross-validation">5.3.3 <span class="math inline">\(k\)</span>-Fold Cross-Validation</a></li>
+<li><a href="#the-bootstrap">5.3.4 The Bootstrap</a><ul>
+<li><a href="#estimating-the-accuracy-of-a-statistic-of-interest-using-the-bootstrap">Estimating the accuracy of a statistic of interest using the bootstrap</a></li>
+<li><a href="#estimating-the-accuracy-of-a-linear-regressin-model">Estimating the Accuracy of a Linear Regressin Model</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
 
-<div id="introduction-to-statistical-learning-with-applications-in-r" class="section level1">
-<h1>Introduction to Statistical Learning with applications in R</h1>
+<p><a id="top"></a> # Introduction to Statistical Learning with applications in R</p>
 <p>This document follows the labs and exercises of the ISLR textbook.</p>
 <div id="chapter-3-linear-regression" class="section level2">
 <h2>Chapter 3: Linear Regression</h2>
@@ -377,6 +404,7 @@ summary {
 library(ISLR)</code></pre>
 <div id="simple-linear-regression" class="section level3">
 <h3>3.6.2 Simple Linear Regression</h3>
+<p><a href="#top">Back to Top</a></p>
 <p><code>Boston</code> dataset in the <code>MASS</code> library has records for median house value (<code>medv</code>) for 506 neighborhoods around Boston.</p>
 <p>Goal: predict <code>medv</code> using 13 predictors, including</p>
 <ul>
@@ -504,6 +532,7 @@ plot(predict(lm.fit), rstudent(lm.fit))</code></pre>
 </div>
 <div id="multiple-linear-regression" class="section level3">
 <h3>3.6.3 Multiple Linear Regression</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>Let’s fit a multiple linear regression model using the <code>lm</code> function.</p>
 <pre class="r"><code># fit the model
 lm.fit = lm(medv ~ lstat + age, data = Boston)
@@ -647,6 +676,7 @@ summary(lm.fit1)</code></pre>
 </div>
 <div id="interaction-terms" class="section level3">
 <h3>3.6.4 Interaction Terms</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>We can use the following syntax to add an interaction term between <code>lstat</code> and <code>age</code>.</p>
 <pre class="r"><code>summary(lm(medv ~ lstat:age, data = Boston))</code></pre>
 <pre><code>## 
@@ -693,6 +723,7 @@ summary(lm.fit1)</code></pre>
 </div>
 <div id="non-linear-transformations-of-the-predictors" class="section level3">
 <h3>3.6.5 Non-linear Transformations of the Predictors</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>We can perform non-linear transformations of the predictors using the <code>I()</code> function.</p>
 <pre class="r"><code>lm.fit2 &lt;- lm(medv ~ lstat + I(lstat^2))
 summary(lm.fit2)</code></pre>
@@ -779,6 +810,7 @@ summary(lm.fit5)</code></pre>
 </div>
 <div id="qualitative-predictors" class="section level3">
 <h3>3.6.6 Qualitative Predictors</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>We’ll use the <code>Carseats</code> data from the <code>ISLR</code> library now.</p>
 <pre class="r"><code>names(Carseats)</code></pre>
 <pre><code>##  [1] &quot;Sales&quot;       &quot;CompPrice&quot;   &quot;Income&quot;      &quot;Advertising&quot; &quot;Population&quot; 
@@ -836,6 +868,7 @@ contrasts(ShelveLoc)</code></pre>
 <h2>Chapter 4 Lab: Logistic Regression, LDA, QDA, and KNN</h2>
 <div id="the-stock-market" class="section level3">
 <h3>4.6.1 The Stock Market</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>We will look at the <em>Smarket</em> dataset which is part of the <em>ISLR</em> library. This dataset consists of percentage returns for the S&amp;P 500 stick index over 1,250 days, from the beginning of 2001 until the end of 2005. For each date, the percentage returns for each of the five previous trading days, <em>Lag1</em> through <em>Lag5</em>. The <em>Volume</em> indicates the number of shared traded on the previous days, in billions. <em>Today</em> is the percentage return on the date in question. <em>Direction</em> indicates whether the market was <em>Up</em> or <em>Down</em> on this date.</p>
 <pre class="r"><code>library(ISLR)
 names(Smarket)</code></pre>
@@ -894,6 +927,7 @@ plot(Volume)</code></pre>
 </div>
 <div id="logistic-regression" class="section level3">
 <h3>4.6.2 Logistic Regression</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>Next, we want to fit a logistic regression model to predict <em>Direction</em> using <em>Lag1</em> through <em>Lag5</em> and <em>Volume</em>. We’ll use the <em>glm()</em> function to fit a generalized linear model using the binomial family.</p>
 <pre class="r"><code>glm.fits &lt;- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Volume,
                 data = Smarket,
@@ -1006,6 +1040,7 @@ table(glm.pred, Direction.2005)</code></pre>
 </div>
 <div id="linear-discriminant-analysis" class="section level3">
 <h3>4.6.3 Linear Discriminant Analysis</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>Now we will perform LDA on the <code>Smarket</code> data using the <code>lda()</code> function from the <code>MASS</code> library. We’ll fit the model using observations prior to 2005.</p>
 <pre class="r"><code>library(MASS)
 
@@ -1123,6 +1158,7 @@ cbind(manual.class, as.character(lda.class[1:20]))</code></pre>
 </div>
 <div id="quadratic-discriminant-analysis" class="section level3">
 <h3>4.6.4 Quadratic Discriminant Analysis</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>Now we’ll use QDA to model the <code>Smarket</code> dataset. We use the <code>qda()</code> function which is part of the <code>MASS</code> library.</p>
 <pre class="r"><code>qda.fit &lt;- qda(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
 qda.fit</code></pre>
@@ -1153,6 +1189,7 @@ mean(qda.class == Direction.2005)</code></pre>
 </div>
 <div id="k-nearest-neighbors" class="section level3">
 <h3>4.6.5 K-Nearest Neighbors</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>Now we’ll perform KNN using the <code>knn()</code> function, which is part of the <code>class</code> library. This function is different from the other methods. Rather than training the model and then making predictions in two steps, the KNN function makes predictions in a single command. The function requires four inputs.</p>
 <ol style="list-style-type: decimal">
 <li>A matrix containing the predictors associated with the training data, labeled <code>train.X</code> below.</li>
@@ -1190,6 +1227,7 @@ table(knn.pred, Direction.2005)</code></pre>
 </div>
 <div id="application-to-caravan-insurance-data" class="section level3">
 <h3>4.6.6 Application to Caravan Insurance Data</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>We’ll look at an application of KNN to the <code>Caravan</code> dataset, which is part of the <code>ISLR</code> library. This dataset includes 85 predictors that measure demographic characteristics for 5,822 individuals. The repsponse variable is <code>Purchase</code>, which indicates whether an individual purchases caravan insurance. Only 6% of people in this dataset purchased caravan insurance.</p>
 <pre class="r"><code>dim(Caravan)</code></pre>
 <pre><code>## [1] 5822   86</code></pre>
@@ -1285,12 +1323,11 @@ table(glm.pred, test.Y)</code></pre>
 <p>Now we’ve got a 33% probability of purchase! This is over five times better than random guessing!</p>
 </div>
 </div>
-</div>
-<div id="cross-validation-and-the-bootstrap" class="section level1">
-<h1>5.3 Cross-Validation and the Bootstrap</h1>
-</div>
-<div id="the-validation-set-approach" class="section level1">
-<h1>5.3.1 The Validation Set Approach</h1>
+<div id="cross-validation-and-the-bootstrap" class="section level2">
+<h2>5.3 Cross-Validation and the Bootstrap</h2>
+<div id="the-validation-set-approach" class="section level3">
+<h3>5.3.1 The Validation Set Approach</h3>
+<p><a href="#top">Back to Top</a></p>
 <p>We’ll explore the validation set approach using the <code>Auto</code> dataset. We use the <code>set.seed()</code> function to set a seed for R’s random number generator. In general, we should set a seed before using any approach with randomness so we can reproduce the results precisely at a later time.</p>
 <pre class="r"><code>library(ISLR)
 set.seed(1)
@@ -1326,6 +1363,143 @@ lm.fit3 &lt;- lm(mpg ~ poly(horsepower,3), data=Auto, subset=train)
 mean((mpg - predict(lm.fit3, Auto))[-train]^2)</code></pre>
 <pre><code>## [1] 20.38533</code></pre>
 <p>We get slightly different error rates now. These results are consistent with what we found earlier, a quadratic model performs better than a linear model, and there is no evidence that a cubic model is necessary.</p>
+</div>
+<div id="leave-one-out-cross-validation" class="section level3">
+<h3>5.3.2 Leave-One-Out Cross-Validation</h3>
+<p><a href="#top">Back to Top</a></p>
+<p>We can automatically perform LOOCV using the <code>glm()</code> and <code>cv.glm()</code> functions. If we do not pass anything to the <code>family</code> argument of <code>glm()</code>, we can perform linear regression.</p>
+<pre class="r"><code>glm.fit &lt;- glm(mpg ~ horsepower, data=Auto)
+coef(glm.fit)</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  39.9358610  -0.1578447</code></pre>
+<pre class="r"><code>lm.fit &lt;- lm(mpg ~ horsepower, data=Auto)
+coef(lm.fit)</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  39.9358610  -0.1578447</code></pre>
+<p>The output for the fitted models are exactly the same. We’ll use the <code>glm()</code> function to perform linear regression so that we can make use of the cross validation.</p>
+<pre class="r"><code>require(boot)</code></pre>
+<pre><code>## Loading required package: boot</code></pre>
+<pre><code>## Warning: package &#39;boot&#39; was built under R version 3.6.3</code></pre>
+<pre><code>## 
+## Attaching package: &#39;boot&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:car&#39;:
+## 
+##     logit</code></pre>
+<pre class="r"><code># fit the model
+glm.fit &lt;- glm(mpg~horsepower, data=Auto)
+
+# perform cross validation
+cv.err &lt;- cv.glm(Auto, glm.fit)
+
+# cross validation results
+cv.err$delta</code></pre>
+<pre><code>## [1] 24.23151 24.23114</code></pre>
+<p>Our cross validation estimate for the test error is approximately 24.23. We discuss later when these two numbers from <em>delta</em> will differ.</p>
+<p>We can repeat this procedure for increasingly complex fits.</p>
+<pre class="r"><code>cv.error &lt;- rep(0,5)
+for (i in 1:5){
+  glm.fit &lt;- glm(mpg ~ poly(horsepower, i), data=Auto)
+  cv.error[i] &lt;- cv.glm(Auto, glm.fit)$delta[1]
+}
+cv.error</code></pre>
+<pre><code>## [1] 24.23151 19.24821 19.33498 19.42443 19.03321</code></pre>
+<p>We see the MSE drops drastically from the linear model to the quadratic, but then no clear improvement using higer-order polynomials.</p>
+</div>
+<div id="k-fold-cross-validation" class="section level3">
+<h3>5.3.3 <span class="math inline">\(k\)</span>-Fold Cross-Validation</h3>
+<p><a href="#top">Back to Top</a></p>
+<p>We’ll use the <code>cv.glm()</code> function to implement <span class="math inline">\(k\)</span>-fold CV on the <code>Auto</code> dataset. We’ll run cross validation for polynomials of degree 1 through 10.</p>
+<pre class="r"><code>set.seed(17)
+
+# initialize error vector
+k &lt;- 10
+cv.error &lt;- rep(0,10)
+
+# run 10-fold cross validation
+for (i in 1:10){
+  glm.fit &lt;- glm(mpg ~ poly(horsepower, i), data=Auto)
+  cv.error[i] &lt;- cv.glm(Auto, glm.fit, K=k)$delta[1]
+}
+
+cv.error</code></pre>
+<pre><code>##  [1] 24.27207 19.26909 19.34805 19.29496 19.03198 18.89781 19.12061 19.14666
+##  [9] 18.87013 20.95520</code></pre>
+<p>Ten-fold cross-validation runs much more quickly than LOOCV. We see again from our results that there is no gain in performance when using polynomials of higher order than a quadratic fit.</p>
+<p>The <code>delta</code> output has two numbers. We look at the first which is the standard <span class="math inline">\(k\)</span>-fold CV error, and the second is a bias-corrected version. Here, the values are quite similar.</p>
+</div>
+<div id="the-bootstrap" class="section level3">
+<h3>5.3.4 The Bootstrap</h3>
+<p><a href="#top">Back to Top</a></p>
+<div id="estimating-the-accuracy-of-a-statistic-of-interest-using-the-bootstrap" class="section level4">
+<h4>Estimating the accuracy of a statistic of interest using the bootstrap</h4>
+<p>The bootstrap can be applied in almost all situations. Performing a bootstrap analysis in R consists of two steps:</p>
+<ol style="list-style-type: decimal">
+<li>Create a function that computes a statistic</li>
+<li>Use the <code>boot()</code> function (part of the <code>boot</code> library) to perform bootstrap by repeatedly sampling observations from the dataset with replacement</li>
+</ol>
+<p>To perform the bootstrap on the <code>Portfolio</code> data from the <code>ISLR</code> dataset, we’ll create a function that computes an estimate fro <span class="math inline">\(\alpha\)</span>.</p>
+<pre class="r"><code>alpha.fn &lt;- function(data, index){
+  X = data$X[index]
+  Y = data$Y[index]
+  return((var(Y) - cov(X,Y)) / (var(X) + var(Y) - 2*cov(X,Y)))
+}</code></pre>
+<p>This dataset was discussed in Section 5.2 of the ISLR book. We’re basically interested in investing a fixed sum of money in two financial assets that yield returns of <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, respectively, where both are random quantities. We invest a fraction <span class="math inline">\(\alpha\)</span> of our money in <span class="math inline">\(X\)</span> and <span class="math inline">\(1-\alpha\)</span> of our money in <span class="math inline">\(Y\)</span>. Since there is variability associated with the returns on the two assets, we want to choose <span class="math inline">\(\alpha\)</span> to minimize this variability. It can be shown that we minimize risk by setting <span class="math inline">\(\alpha\)</span> to <span class="math display">\[ \alpha = \frac{\sigma_Y^2 - \sigma_{XY}}{ \sigma_X^2 + \sigma_Y^2 - 2\sigma_{XY}} \]</span></p>
+<p>So then our function <code>alpha.fn</code> returns an estimate for <span class="math inline">\(\alpha\)</span> by applying the formula to the observation indexed by <code>index</code>. So the following command estimates <span class="math inline">\(\alpha\)</span> using all 100 observations.</p>
+<pre class="r"><code>alpha.fn(Portfolio, 1:100)</code></pre>
+<pre><code>## [1] 0.5758321</code></pre>
+<p>Next we’ll use the <code>sample()</code> command to randomly subset 100 observations from the range 1 to 100, with replacement. This is equivalent to contructing a new bootstrap dataset and recomputing <span class="math inline">\(\alpha\)</span>.</p>
+<pre class="r"><code>set.seed(1)
+alpha.fn(Portfolio, sample(100, 100, replace=T))</code></pre>
+<pre><code>## [1] 0.7368375</code></pre>
+<p>We can perform a bootstrap analysis by performing this task many times, recording the estimated <span class="math inline">\(\alpha\)</span> values, and computing the resulting standard deviation. However, the <code>boot()</code> function automates this.</p>
+<pre class="r"><code>boot(Portfolio, alpha.fn, R=1000)</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Portfolio, statistic = alpha.fn, R = 1000)
+## 
+## 
+## Bootstrap Statistics :
+##      original       bias    std. error
+## t1* 0.5758321 -0.001695873  0.09366347</code></pre>
+<p>We’re performed the bootstrap with R=1,000 bootstrap estimates for <span class="math inline">\(\alpha\)</span>.</p>
+<p>We see that using the original data, <span class="math inline">\(\hat{\alpha} = 0.5758\)</span> and the bootstrap estimate for <span class="math inline">\(SE(\hat{\alpha}) = 0.0886\)</span>.</p>
+</div>
+<div id="estimating-the-accuracy-of-a-linear-regressin-model" class="section level4">
+<h4>Estimating the Accuracy of a Linear Regressin Model</h4>
+<p>We can use the bootstrap to estimate the variability of the estimated coefficients and predictions from a statistical learning model. We’ll use the bootstrap to assess these in a linear regression model using the <code>Auto</code> dataset. We’ll create a function called <code>boot.fn</code> to take the <code>Auto</code> dataset and returns the intercept and slope estimates for the linear regression model.</p>
+<pre class="r"><code>boot.fn &lt;- function(data, index){
+  # return the coefficients of the linear model
+  return (coef(lm(mpg ~ horsepower, data=data, subset=index)))
+}</code></pre>
+<p>Now we’ll use the <code>boot.fn</code> function to estimate <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> for all 392 observations in the dataset.</p>
+<pre class="r"><code># estimate coefficents for linear regression on the entire dataset
+boot.fn(Auto, 1:392)</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  39.9358610  -0.1578447</code></pre>
+<p>Now we can use the <code>boot.fn</code> function to create bootstrap estimates for the intercept and slope by randomly sampling from the full dataset.</p>
+<pre class="r"><code>set.seed(1)
+boot.fn(Auto, sample(392, 392, replace=T))</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  40.3404517  -0.1634868</code></pre>
+<p>Now we can use the <code>boot()</code> function to comput the standard errors for the intercept and slope terms.</p>
+<pre class="r"><code>boot(Auto, boot.fn, R=1000)</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Auto, statistic = boot.fn, R = 1000)
+## 
+## 
+## Bootstrap Statistics :
+##       original        bias    std. error
+## t1* 39.9358610  0.0549915227 0.841925746
+## t2* -0.1578447 -0.0006210818 0.007348956</code></pre>
+</div>
+</div>
 </div>
 
 
